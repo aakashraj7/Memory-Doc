@@ -86,7 +86,6 @@ function Signup() {
             setUserPass('');
             setButtonText('Submit');
             window.dispatchEvent(new Event('authChange'));
-            localStorage.setItem('uid', uid);
             navigate('/dashboard');
         }catch(error){
             setButtonText('Submit');

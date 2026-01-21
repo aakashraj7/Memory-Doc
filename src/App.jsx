@@ -5,14 +5,24 @@ import Home from './Home.jsx'
 import logo from './assets/enlarged.png'
 import Login from './Login.jsx'
 import Signup from './Signup.jsx'
-
+import CreateMemory from './createMemory.jsx'
+import {app} from './fbconfig.jsx'
+import { initializeApp } from 'firebase/app'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import Logout from './Logout.jsx'
+const auth = getAuth(app);
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = () => {
-      const userId = localStorage.getItem('uid');
-      setIsLoggedIn(userId !== null);
+        const unSubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+            }
+        });
     };
 
     // Check on mount
@@ -65,6 +75,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/create-memory" element={<CreateMemory />} />
+                <Route path="/logout" element={<Logout />} />
             </Routes>
         </BrowserRouter>
     </>

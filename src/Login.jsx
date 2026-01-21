@@ -46,7 +46,6 @@ function Login(){
         try{
             const userCredentials = await signInWithEmailAndPassword(auth, userEmail, userPass);
             const user = userCredentials.user;
-            localStorage.setItem('uid', user.uid);
             window.dispatchEvent(new Event('authChange'));
             navigate('/dashboard');
         }catch(error){
