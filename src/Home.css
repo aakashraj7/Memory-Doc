@@ -1,0 +1,93 @@
+.save-here-card {
+    border: 1px solid green;
+    border-radius: .6rem;
+}
+
+.save-here-title {
+    background: linear-gradient(to right, lightgreen, green);
+    color: darkgreen;
+    padding: .2rem .7rem;
+    border-radius: .6rem .6rem 0 0;
+}
+.lft, .rgt{
+    animation-name: saveAnim;
+    animation-duration: 1.8s;
+    animation-fill-mode: forwards;
+}
+.rgt{
+    animation-name:  rgtAnim;
+}
+@keyframes rgtAnim {
+    from{
+        transform: translateX(-500px);
+    }
+}
+@keyframes saveAnim{
+    from{
+        transform: translateX(500px);
+    }
+}
+
+.save-here-text {
+    color: green;
+    padding: .3rem .5rem;
+}
+
+.secured-auth-card {
+    border: 1px solid yellow;
+    border-radius: .6rem;
+    margin-top: 60px;
+}
+
+.secured-auth-title {
+    background: linear-gradient(to right, lightyellow, yellow);
+    color: darkgoldenrod;
+    padding: .2rem .7rem;
+    border-radius: .6rem .6rem 0 0;
+}
+
+.secured-auth-text {
+    color: goldenrod;
+    padding: .3rem .5rem;
+}
+
+.user-friendly-card {
+    border: 1px solid lightblue;
+    border-radius: .6rem;
+    margin-top: 60px;
+}
+
+.user-friendly-title {
+    background: linear-gradient(to right, lightblue, aqua);
+    color: darkblue;
+    padding: .2rem .7rem;
+    border-radius: .6rem .6rem 0 0;
+}
+
+.user-friendly-text {
+    color: aqua;
+    padding: .3rem .5rem;
+}
+
+.get-started {
+    color: sandybrown;
+    text-align: center;
+    font-size: 1.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+.get-started:hover {
+    color: wheat;
+    transition: color 0.3s ease;
+}
+#hmlogo{
+    animation-name: imgAnim;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+@keyframes imgAnim {
+    from{
+        transform: scale(0);
+        filter: blur(50px);
+    }
+}

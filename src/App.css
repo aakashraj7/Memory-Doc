@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+img{
+    width: 150px;
+    height: auto;
+}
+body{
+    margin: 0;
+    padding: 0;
+    background: radial-gradient( #012d0e, rgb(0, 29, 23));
+    min-height: 100dvh;
+}
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Space Mono", monospace;
+}
+.butn{
+    margin: .8rem;
+    color: wheat;
+    text-decoration: none;
+    font-size: 1.3rem;
+    transition: all .4s;
+}
+.actived{
+    color: aliceblue;
+    border: 1px solid gray;
+    border-radius: .5rem;
+    background: #222;
+}

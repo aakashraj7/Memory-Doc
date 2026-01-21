@@ -1,0 +1,41 @@
+.s-form{
+    background: linear-gradient(to bottom right, rgb(3, 129, 71),#01411f);
+    animation: fadeInUp 1s ease-in-out;
+    border-radius: 1.4rem;
+}
+.inp{
+    width: 300px;
+    border-radius: 20px;
+    border: 1px solid blue;
+    padding: 5px 10px;
+    background: #01411f;
+    color: gray;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    font-size: 1rem;
+}
+.form-ele{
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: .8rem .4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+i{
+    font-size: 2rem;
+    margin: 1rem;
+}
+.spanner{
+    border: 1px solid black;
+    border-radius: 50%;
+}
+.sbmt:hover{
+    color: black;
+}
+@keyframes fadeInUp {
+    from{
+        transform: scale(0) translateY(500px);
+    }
+}
