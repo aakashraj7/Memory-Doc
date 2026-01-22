@@ -2,9 +2,13 @@ import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import logo from './assets/logo.png';
 import './Home.css';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { app } from './fbconfig.jsx';
+const auth = getAuth(app);
 
 function Home() {
     const [msg, setMsg] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     
     useEffect(() => {
         const interval = setInterval(() => {
@@ -18,6 +22,17 @@ function Home() {
         
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+            const unsubscribe = onAuthStateChanged(auth,(user) => {
+                if (user) {
+                    setIsLoggedIn(true);
+                } else {
+                    setIsLoggedIn(false);
+                }
+            });
+            return () => unsubscribe();
+        }, []);
 
     return (
         <div>
@@ -37,7 +52,11 @@ function Home() {
                         <p className="user-friendly-text">Enjoy a seamless experience with our intuitive and easy-to-use design.</p>
                     </div>
                     <div className="col-12 mt-5 text-center">
-                        <NavLink className="get-started" to="/signup">Get Started <br />.{msg}</NavLink>
+                        {isLoggedIn ? (
+                            <NavLink className="get-started" to="/memories">Go to Memories</NavLink>
+                        ) : (
+                            <NavLink className="get-started" to="/signup">Get Started <br />.{msg}</NavLink>
+                        )}
                     </div>
                 </div>
             </div>
