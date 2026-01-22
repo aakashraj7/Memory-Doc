@@ -91,3 +91,14 @@
         filter: blur(50px);
     }
 }
+
+.animate-bottom{
+    animation-name: botAnim;
+    animation-duration: 1.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes botAnim {
+    from{
+        transform: translateY(500px);
+    }
+}

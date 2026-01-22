@@ -16,6 +16,7 @@ const MultiFileUpload = () => {
     const [progressMap, setProgressMap] = useState({});
     const [isUploading, setIsUploading] = useState(false);
     const [allSuccess, setAllSuccess] = useState(false);
+    const [notification, setNotification] = useState(null);
 
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -30,15 +31,53 @@ const MultiFileUpload = () => {
         return () => unsubscribe();
     }, [navigate, auth]);
 
+    // Timer for Notification Fade out
+    useEffect(() => {
+        if (notification) {
+            const timer = setTimeout(() => {
+                setNotification(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [notification]);
+
     const handleFileChange = (e) => {
-        if (e.target.files) {
-            setSelectedFiles(Array.from(e.target.files));
+        if (e.target.files && e.target.files.length > 0) {
+            const incomingFiles = Array.from(e.target.files);
+            let duplicateFound = false;
+
+            // 1. FILTER: Images/Videos only
+            const validTypeFiles = incomingFiles.filter(file => 
+                file.type.startsWith('image/') || file.type.startsWith('video/')
+            );
+
+            // 2. FILTER: Remove duplicates
+            const uniqueFiles = validTypeFiles.filter(newFile => {
+                const isDuplicate = selectedFiles.some(existingFile => 
+                    existingFile.name === newFile.name && existingFile.size === newFile.size
+                );
+                if (isDuplicate) duplicateFound = true;
+                return !isDuplicate;
+            });
+
+            if (duplicateFound) {
+                setNotification("⚠️ Duplicate file(s) ignored.");
+            }
+
+            setSelectedFiles((prev) => [...prev, ...uniqueFiles]);
             setAllSuccess(false);
             setProgressMap({});
+
+            // --- THE FIX IS HERE ---
+            // Reset the input value so selecting the exact same file triggers 'onChange' again
+            e.target.value = ""; 
         }
     };
 
-    // Helper to upload one file
+    const removeFile = (indexToRemove) => {
+        setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+    };
+
     const uploadToCloudinary = (file) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -59,7 +98,7 @@ const MultiFileUpload = () => {
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     const response = JSON.parse(xhr.responseText);
-                    resolve(response.secure_url); // We just return the URL
+                    resolve(response.secure_url); 
                 } else {
                     reject("Upload failed");
                 }
@@ -79,18 +118,15 @@ const MultiFileUpload = () => {
         setAllSuccess(false);
 
         try {
-            // 1. Upload ALL files and wait for them to finish
-            // This returns an array like: ["https://res.cloudinary...", "https://res.cloudinary..."]
             const uploadedImageUrls = await Promise.all(
                 selectedFiles.map((file) => uploadToCloudinary(file))
             );
 
-            // 2. Create ONE Document for the whole group
             await addDoc(collection(db, "memories"), {
                 userId: user.uid,
-                title: memoryName,        // "Paris Trip"
-                images: uploadedImageUrls, // The Array of all links!
-                thumbnail: uploadedImageUrls[0], // Use the first image as a cover photo
+                title: memoryName,        
+                images: uploadedImageUrls, 
+                thumbnail: uploadedImageUrls[0], 
                 createdAt: new Date().toISOString(),
                 fileCount: uploadedImageUrls.length
             });
@@ -108,20 +144,60 @@ const MultiFileUpload = () => {
         }
     };
 
-    // --- Styles ---
+    // --- YOUR CUSTOM STYLES ---
     const styles = {
-        container: { maxWidth: '600px', width: '90%', margin: '40px auto', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#fff', fontFamily: 'Arial, sans-serif' },
-        inputWrapper: { border: '2px dashed #ccc', padding: '30px', textAlign: 'center', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer' },
-        fileItem: { marginBottom: '10px', background: '#f9f9f9', padding: '10px', borderRadius: '6px' },
+        container: { maxWidth: '600px', width: '90%', margin: '40px auto', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#fff', fontFamily: 'Arial, sans-serif', position: 'relative' },
+        inputWrapper: { border: '2px dashed #ccc', padding: '30px', textAlign: 'center', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', backgroundColor: '#fafafa' },
+        fileItem: { marginBottom: '10px', background: '#f9f9f9', padding: '10px', borderRadius: '6px', position: 'relative' }, 
         progressBarContainer: { width: '100%', height: '8px', backgroundColor: '#e0e0e0', borderRadius: '4px', marginTop: '5px', overflow: 'hidden' },
         progressBarFill: (percent) => ({ width: `${percent}%`, height: '100%', backgroundColor: percent === 100 ? '#28a745' : '#007bff', transition: 'width 0.3s ease' }),
-        button: { width: '100%', padding: '12px', backgroundColor: isUploading ? '#6c757d' : '#007bff', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', cursor: isUploading ? 'not-allowed' : 'pointer', marginTop: '20px' },
+        
+        button: { fontFamily: '"Space Mono", monospace', width: '100%', padding: '12px', backgroundColor: isUploading ? '#6c757d' : '#007bff', color: 'white', border: 'none', borderRadius: '6px', fontSize: '22px', letterSpacing: '1.2px', cursor: isUploading ? 'not-allowed' : 'pointer', marginTop: '20px' },
+        
         successMsg: { marginTop: '20px', padding: '10px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '6px', textAlign: 'center' },
-        textInput: { width: '100%', color: "black", padding: '10px', marginBottom: '15px', borderRadius: '6px', border: '2px dashed #ccc', boxSizing: 'border-box', background: '#fefefe' }
+        textInput: { width: '100%', color: "black", padding: '10px', marginBottom: '15px', borderRadius: '6px', border: '2px dashed #ccc', boxSizing: 'border-box', background: '#fefefe' },
+        
+        addMoreBtn: { display: 'inline-block', padding: '8px 16px', backgroundColor: 'orange', color: '#223', fontWeight: '700', letterSpacing: '1.2px', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', marginTop: '10px', textAlign: 'center' },
+        
+        removeBtn: {
+            marginLeft: '10px',
+            backgroundColor: '#ff4d4d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '24px',
+            height: '24px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            lineHeight: '24px',
+            textAlign: 'center',
+            padding: 0
+        },
+
+        toast: {
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            backgroundColor: '#333',
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            animation: 'fadeIn 0.5s ease-in-out',
+            fontSize: '14px'
+        }
     };
 
     return (
-        <div style={styles.container}>
+        <div className='animate-bottom' style={styles.container}>
+            {notification && (
+                <div style={styles.toast}>
+                    {notification}
+                </div>
+            )}
+
             <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Create New Memory</h2>
 
             <input
@@ -132,27 +208,47 @@ const MultiFileUpload = () => {
                 style={styles.textInput}
             />
 
-            <div style={styles.inputWrapper}>
-                <input type="file" id='fileInput' multiple onChange={handleFileChange} style={{ display: 'none' }} />
-                <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', color: '#666' }}>
-                    {selectedFiles.length > 0 ? `${selectedFiles.length} files selected` : "Click to Add Photos/Videos"}
-                </label>
-            </div>
+            <input type="file" id='fileInput' multiple accept="image/*, video/*" onChange={handleFileChange} style={{ display: 'none' }} />
 
-            {selectedFiles.map((file, index) => (
-                <div key={index} style={styles.fileItem}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                        <span>{file.name}</span>
-                        <span>{progressMap[file.name] || 0}%</span>
-                    </div>
-                    <div style={styles.progressBarContainer}>
-                        <div style={styles.progressBarFill(progressMap[file.name] || 0)}></div>
+            {selectedFiles.length === 0 ? (
+                <div style={styles.inputWrapper}>
+                    <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', color: '#666' }}>
+                        Click to Add Photos/Videos
+                    </label>
+                </div>
+            ) : (
+                <div style={{ marginBottom: '20px' }}>
+                    <p style={{marginBottom: '10px', fontWeight: 'bold'}}>Selected Files ({selectedFiles.length}):</p>
+                    
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} style={styles.fileItem}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
+                                <span style={{maxWidth: '70%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                                    {file.name}
+                                </span>
+                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                    <span>{progressMap[file.name] || 0}%</span>
+                                    {!isUploading && (
+                                        <button onClick={() => removeFile(index)} style={styles.removeBtn} title="Remove file">X</button>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={styles.progressBarContainer}>
+                                <div style={styles.progressBarFill(progressMap[file.name] || 0)}></div>
+                            </div>
+                        </div>
+                    ))}
+
+                    <div style={{ textAlign: 'center' }}>
+                        <label htmlFor="fileInput" style={styles.addMoreBtn}>
+                            + ADD MORE
+                        </label>
                     </div>
                 </div>
-            ))}
+            )}
 
-            <button onClick={handleUpload} disabled={isUploading} style={styles.button}>
-                {isUploading ? "Uploading..." : "Save Memory"}
+            <button onClick={handleUpload} disabled={isUploading || selectedFiles.length === 0} style={styles.button}>
+                {isUploading ? "UPLOADING..." : "SAVE MEMORY"}
             </button>
 
             {allSuccess && <div style={styles.successMsg}>Memory Saved Securely !</div>}

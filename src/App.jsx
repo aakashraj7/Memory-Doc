@@ -10,6 +10,7 @@ import {app} from './fbconfig.jsx'
 import { initializeApp } from 'firebase/app'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import Logout from './Logout.jsx'
+import MemoryGallery from './Memories.jsx'
 const auth = getAuth(app);
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -77,6 +78,7 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/create-memory" element={<CreateMemory />} />
                 <Route path="/logout" element={<Logout />} />
+                <Route path="/memories" element={<MemoryGallery />} />
             </Routes>
         </BrowserRouter>
     </>
