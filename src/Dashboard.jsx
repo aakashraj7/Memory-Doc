@@ -69,20 +69,37 @@ const Dashboard = () => {
 
     const handleDeleteAccount = async () => {
         const confirmDelete = window.confirm(
-            "⚠️ DANGER: Are you sure you want to delete your account?\n\nThis action cannot be undone."
+            "⚠️ DANGER: This will permanently delete your account AND all your memories. Are you sure?"
         );
 
         if (confirmDelete) {
+            setLoading(true);
+            const db = getFirestore(app);
+
             try {
+                const q = query(collection(db, "memories"), where("userId", "==", user.uid));
+                const querySnapshot = await getDocs(q);
+
+                const deletePromises = querySnapshot.docs.map((document) => 
+                    deleteDoc(doc(db, "memories", document.id))
+                );
+                
+                await Promise.all(deletePromises);
+
                 await deleteUser(user);
-                alert("Account deleted.");
+                
+                alert("Account and data deleted successfully.");
                 navigate('/login');
+
             } catch (error) {
+                console.error("Delete Error:", error);
                 if (error.code === 'auth/requires-recent-login') {
-                    alert("Security Check: Please log out and log back in to delete your account.");
+                    alert("Security Check: Please log out and log back in, then try again.");
                 } else {
-                    alert("Failed to delete account.");
+                    alert("Failed to delete account data.");
                 }
+            } finally {
+                setLoading(false);
             }
         }
     };
