@@ -8,7 +8,6 @@ const MultiFileUpload = () => {
     const navigate = useNavigate();
     const [memoryName, setMemoryName] = useState(""); 
     
-    // --- CONFIGURATION ---
     const CLOUD_NAME = "dvsr6htve";
     const UPLOAD_PRESET = "memory-doc";
 
@@ -31,7 +30,6 @@ const MultiFileUpload = () => {
         return () => unsubscribe();
     }, [navigate, auth]);
 
-    // Timer for Notification Fade out
     useEffect(() => {
         if (notification) {
             const timer = setTimeout(() => {
@@ -46,12 +44,10 @@ const MultiFileUpload = () => {
             const incomingFiles = Array.from(e.target.files);
             let duplicateFound = false;
 
-            // 1. FILTER: Images/Videos only
             const validTypeFiles = incomingFiles.filter(file => 
                 file.type.startsWith('image/') || file.type.startsWith('video/')
             );
 
-            // 2. FILTER: Remove duplicates
             const uniqueFiles = validTypeFiles.filter(newFile => {
                 const isDuplicate = selectedFiles.some(existingFile => 
                     existingFile.name === newFile.name && existingFile.size === newFile.size
@@ -68,8 +64,6 @@ const MultiFileUpload = () => {
             setAllSuccess(false);
             setProgressMap({});
 
-            // --- THE FIX IS HERE ---
-            // Reset the input value so selecting the exact same file triggers 'onChange' again
             e.target.value = ""; 
         }
     };
@@ -98,7 +92,7 @@ const MultiFileUpload = () => {
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     const response = JSON.parse(xhr.responseText);
-                    resolve(response.secure_url); 
+                    resolve(response.secure_url);
                 } else {
                     reject("Upload failed");
                 }
@@ -144,7 +138,6 @@ const MultiFileUpload = () => {
         }
     };
 
-    // --- YOUR CUSTOM STYLES ---
     const styles = {
         container: { maxWidth: '600px', width: '90%', margin: '40px auto', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#fff', fontFamily: 'Arial, sans-serif', position: 'relative' },
         inputWrapper: { border: '2px dashed #ccc', padding: '30px', textAlign: 'center', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', backgroundColor: '#fafafa' },

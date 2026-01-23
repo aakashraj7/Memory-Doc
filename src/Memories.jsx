@@ -148,17 +148,16 @@ const MemoryGallery = () => {
         memoryTitle: { fontSize: '1.5rem', color: 'orange', fontWeight: 'bold', margin: 0 },
         dateText: { fontSize: '0.8rem', color: '#aaa', display: 'block' },
         
-        // --- 1. UPDATED GRID STYLE ---
         imageGrid: { 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', 
             gap: '10px',
-            gridAutoFlow: 'dense' // This fills empty gaps if videos take 2 slots
+            gridAutoFlow: 'dense'
         },
         
-        mediaWrapper: { position: 'relative', width: '100%', height: '100%' }, // Changed height to 100% to fill grid slot
+        mediaWrapper: { position: 'relative', width: '100%', height: '100%' },
 
-        // --- 2. UPDATED ITEM STYLE ---
+
         mediaItem: { 
             width: '100%', 
             height: '120px', 
@@ -166,7 +165,7 @@ const MemoryGallery = () => {
             borderRadius: '8px', 
             cursor: 'pointer', 
             backgroundColor: '#000',
-            display: 'block' // Removes tiny bottom gap
+            display: 'block'
         },
         
         removeSingleBtn: {
@@ -185,7 +184,7 @@ const MemoryGallery = () => {
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 'bold',
-            zIndex: 10 // Ensure it sits on top
+            zIndex: 10
         },
 
         footerActions: { marginTop: '15px', display: 'flex', gap: '10px', paddingTop: '10px', borderTop: '1px solid #444' },
@@ -225,8 +224,6 @@ const MemoryGallery = () => {
                                             key={index} 
                                             style={{
                                                 ...styles.mediaWrapper,
-                                                // --- 3. VIDEO WIDTH LOGIC ---
-                                                // If it's a video, span 2 columns. If photo, span 1.
                                                 gridColumn: isVid ? 'span 2' : 'auto' 
                                             }}
                                         >
@@ -234,9 +231,7 @@ const MemoryGallery = () => {
                                                 <video 
                                                     src={mediaUrl} 
                                                     style={styles.mediaItem}
-                                                    // --- 4. CLICK TO OPEN LOGIC ---
                                                     onClick={() => window.open(mediaUrl, '_blank')}
-                                                    // Removed 'controls' so clicking anywhere on the video opens it
                                                     title="Click to watch video"
                                                 />
                                             ) : (
@@ -251,7 +246,7 @@ const MemoryGallery = () => {
                                             <button 
                                                 style={styles.removeSingleBtn}
                                                 onClick={(e) => {
-                                                    e.stopPropagation(); 
+                                                    e.stopPropagation();
                                                     handleDeleteSingleMedia(memory.id, mediaUrl);
                                                 }}
                                                 title="Remove this file"
